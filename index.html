@@ -493,7 +493,6 @@
             transition: var(--transition);
         }
 
-        /* ИСПРАВЛЕНИЕ РАМОК И ФОРМАТА ФОТО НА 100% ФУЛЛ ЭКРАН */
         .product-img-wrap {
             width: 100%;
             height: auto;
@@ -655,7 +654,6 @@
             border: 1px solid var(--border-light);
             border-radius: 6px;
             padding: 2px 8px;
-            margin-top: 6px;
             width: fit-content;
         }
 
@@ -790,6 +788,61 @@
             max-width: 100%;
             box-sizing: border-box;
             overflow-x: hidden;
+        }
+
+        /* НОВЫЙ БЛОК: СТРОКА ДЛЯ ЦВЕТА И КОЛИЧЕСТВА С СМЕЩЕНИЕМ ВПРАВО */
+        .modal-options-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin: 15px 0;
+            padding-right: 10px; /* Слегка смещено/отодвинуто вправо для безопасности */
+        }
+
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .option-group label {
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* УВЕЛИЧЕННЫЕ КРУЖКИ ЦВЕТА С ТЕКСТОМ */
+        .color-selector-large {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .color-circle-big {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid var(--border-hover);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .color-circle-big.white { background-color: #FFFFFF; }
+        .color-circle-big.black { background-color: #1a1a1a; }
+        .color-circle-big.pink { background-color: #ffb6c1; }
+        .color-circle-big.active {
+            box-shadow: 0 0 0 3px var(--accent);
+            border-color: var(--accent);
+        }
+
+        .color-name-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: capitalize;
+            color: var(--text-primary);
         }
 
         .specs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 15px 0; }
@@ -956,20 +1009,27 @@
                 <p id="modal-desc" style="color: var(--text-secondary); margin: 8px 0; font-size: 0.85rem;"></p>
                 <div class="product-price" id="modal-price" style="font-size: 1.3rem; color: var(--accent); margin: 10px 0;">₴ 0</div>
 
-                <div style="font-weight: 700; font-size: 0.8rem; margin: 10px 0 4px;">Колір (Color)</div>
-                <div class="color-picker-preview" style="margin-bottom: 12px;">
-                    <div class="color-dot white active" title="White"></div>
-                    <div class="color-dot black out-of-stock" title="Black"></div>
+                <!-- ЕДИНАЯ СТРОКА ДЛЯ ЦВЕТА И КОЛИЧЕСТВА (СМЕЩЕНА ВПРАВО) -->
+                <div class="modal-options-row">
+                    <div class="option-group">
+                        <label>Колір</label>
+                        <div class="color-selector-large" onclick="cycleModalColor()">
+                            <div class="color-circle-big" id="modal-color-circle"></div>
+                            <span class="color-name-label" id="modal-color-name">white</span>
+                        </div>
+                    </div>
+
+                    <div class="option-group">
+                        <label>Кількість</label>
+                        <div class="quantity-controls">
+                            <button onclick="adjustModalQty(-1)">−</button>
+                            <span id="modal-qty" style="font-weight: 700; padding: 0 8px;">1</span>
+                            <button onclick="adjustModalQty(1)">+</button>
+                        </div>
+                    </div>
                 </div>
 
-                <div style="font-weight: 700; font-size: 0.8rem; margin: 10px 0 4px;">Кількість</div>
-                <div class="quantity-controls" style="margin-bottom: 15px;">
-                    <button onclick="adjustModalQty(-1)">−</button>
-                    <span id="modal-qty" style="font-weight: 700; padding: 0 8px;">1</span>
-                    <button onclick="adjustModalQty(1)">+</button>
-                </div>
-
-                <div style="display: flex; gap: 10px;">
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
                     <button class="btn-primary" style="flex-grow: 1; justify-content: center; padding: 12px;" onclick="addCurrentProductToCart()">Додати в кошик</button>
                     <button class="wishlist-btn" id="modal-wishlist-btn" onclick="toggleCurrentWishlist()" style="position: static; width: 44px; height: 44px;">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -1110,6 +1170,14 @@
         let wishlist = JSON.parse(localStorage.getItem('milip_wishlist')) || [];
         let currentModalProduct = null;
         let modalQty = 1;
+        
+        // Доступные цвета для выбора
+        const availableColors = [
+            { name: 'white', class: 'white' },
+            { name: 'black', class: 'black' },
+            { name: 'pink', class: 'pink' }
+        ];
+        let selectedColorIndex = 0;
         let currentCategoryFilter = 'All';
 
         // HERO ROTATOR
@@ -1191,8 +1259,8 @@
             container.innerHTML = filteredProducts.map((p) => `
                 <div class="product-card ${p.colClass}" id="product-card-${p.id}" onclick="openProductModal(products.find(x => x.id === '${p.id}'))">
                     <span class="product-tag new">${p.tag}</span>
-                    <button class="wishlist-btn ${wishlist.includes(p.id) ? 'active' : ''}" onclick="event.stopPropagation(); toggleWishlist('${p.id}')">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="${wishlist.includes(p.id) ? '#FF3B30' : 'none'}" stroke="${wishlist.includes(p.id) ? '#FF3B30' : 'currentColor'}" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    <button class="wishlist-btn ${wishlist.some(item => item.id === p.id) ? 'active' : ''}" onclick="event.stopPropagation(); toggleWishlist('${p.id}')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="${wishlist.some(item => item.id === p.id) ? '#FF3B30' : 'none'}" stroke="${wishlist.some(item => item.id === p.id) ? '#FF3B30' : 'currentColor'}" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                     </button>
                     <div class="product-img-wrap">
                         <img src="${p.img}" alt="${p.title}">
@@ -1200,7 +1268,7 @@
                     
                     <div class="color-picker-preview">
                         <div class="color-dot white active" title="White"></div>
-                        <div class="color-dot black out-of-stock" title="Black"></div>
+                        <div class="color-dot black" title="Black"></div>
                     </div>
 
                     <div class="product-info">
@@ -1211,18 +1279,37 @@
                         <div class="product-price">${formatPrice(p.price)}</div>
                     </div>
                     <div class="product-action-hover">
-                        <button class="btn-primary" style="width: 100%; justify-content: center; padding: 10px; font-size: 0.85rem;" onclick="event.stopPropagation(); addToCart('${p.id}')">${currentLang === 'ua' ? 'В кошик' : 'В корзину'}</button>
+                        <button class="btn-primary" style="width: 100%; justify-content: center; padding: 10px; font-size: 0.85rem;" onclick="event.stopPropagation(); addDirectToCart('${p.id}')">${currentLang === 'ua' ? 'В кошик' : 'В корзину'}</button>
                     </div>
                 </div>
             `).join('');
         }
 
         function toggleWishlist(productId) {
-            const index = wishlist.indexOf(productId);
-            const isAdding = index === -1;
-            
-            if (isAdding) wishlist.push(productId);
-            else wishlist.splice(index, 1);
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            // Проверяем, есть ли уже товар в избранном (с учетом выбранного цвета в модалке, либо дефолтного)
+            const colorObj = currentModalProduct && currentModalProduct.id === productId 
+                ? availableColors[selectedColorIndex] 
+                : availableColors[0];
+
+            const existingIndex = wishlist.findIndex(item => item.id === productId && item.color === colorObj.name);
+            const isAdding = existingIndex === -1;
+
+            if (isAdding) {
+                wishlist.push({
+                    id: product.id,
+                    brand: product.brand,
+                    title: product.title,
+                    price: product.price,
+                    img: product.img,
+                    color: colorObj.name,
+                    qty: currentModalProduct && currentModalProduct.id === productId ? modalQty : 1
+                });
+            } else {
+                wishlist.splice(existingIndex, 1);
+            }
 
             localStorage.setItem('milip_wishlist', JSON.stringify(wishlist));
             renderCatalog();
@@ -1245,18 +1332,34 @@
 
         function updateModalWishlistBtn() {
             const btn = document.getElementById('modal-wishlist-btn');
-            const isFav = wishlist.includes(currentModalProduct.id);
+            const colorObj = availableColors[selectedColorIndex];
+            const isFav = wishlist.some(item => item.id === currentModalProduct.id && item.color === colorObj.name);
             btn.classList.toggle('active', isFav);
             btn.querySelector('svg').setAttribute('fill', isFav ? '#FF3B30' : 'none');
             btn.querySelector('svg').setAttribute('stroke', isFav ? '#FF3B30' : 'currentColor');
         }
 
-        function addToCart(productId, qty = 1) {
+        function addDirectToCart(productId) {
             const product = products.find(p => p.id === productId);
             if (!product) return;
-            const existing = cart.find(item => item.id === productId);
-            if (existing) existing.qty += qty;
-            else cart.push({ ...product, qty });
+            addToCartFull(product, availableColors[0].name, 1);
+        }
+
+        function addToCartFull(product, colorName, qty) {
+            const existing = cart.find(item => item.id === product.id && item.color === colorName);
+            if (existing) {
+                existing.qty += qty;
+            } else {
+                cart.push({
+                    id: product.id,
+                    brand: product.brand,
+                    title: product.title,
+                    price: product.price,
+                    img: product.img,
+                    color: colorName,
+                    qty: qty
+                });
+            }
 
             localStorage.setItem('milip_cart', JSON.stringify(cart));
             updateBadges();
@@ -1265,11 +1368,13 @@
             updateTelegramMainButton();
         }
 
-        function updateCartQty(productId, change) {
-            const item = cart.find(i => i.id === productId);
+        function updateCartQty(productId, colorName, change) {
+            const item = cart.find(i => i.id === productId && i.color === colorName);
             if (!item) return;
             item.qty += change;
-            if (item.qty <= 0) cart = cart.filter(i => i.id !== productId);
+            if (item.qty <= 0) {
+                cart = cart.filter(i => !(i.id === productId && i.color === colorName));
+            }
             localStorage.setItem('milip_cart', JSON.stringify(cart));
             updateBadges();
             renderCartItems();
@@ -1290,11 +1395,12 @@
                     <img src="${item.img}" alt="${item.title}">
                     <div style="flex-grow: 1;">
                         <h4 style="font-size: 0.9rem;">${item.brand} ${item.title}</h4>
+                        <p style="font-size: 0.75rem; color: var(--text-secondary);">Колір: <strong>${item.color}</strong></p>
                         <p style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">${formatPrice(item.price)}</p>
-                        <div class="quantity-controls">
-                            <button onclick="updateCartQty('${item.id}', -1)">−</button>
+                        <div class="quantity-controls" style="margin-top: 4px;">
+                            <button onclick="updateCartQty('${item.id}', '${item.color}', -1)">−</button>
                             <span>${item.qty}</span>
-                            <button onclick="updateCartQty('${item.id}', 1)">+</button>
+                            <button onclick="updateCartQty('${item.id}', '${item.color}', 1)">+</button>
                         </div>
                     </div>
                 </div>
@@ -1362,6 +1468,8 @@
         function openProductModal(product) {
             currentModalProduct = product;
             modalQty = 1;
+            selectedColorIndex = 0;
+            updateModalColorDisplay();
             
             const galleryImages = product.gallery && product.gallery.length > 0 ? product.gallery : [product.img];
             document.getElementById('modal-img').src = galleryImages[0];
@@ -1380,9 +1488,25 @@
             document.getElementById('modal-specs').innerHTML = product.specs.map(s => `
                 <div class="spec-box"><span>${s.label}</span><strong>${s.value}</strong></div>
             `).join('');
+            
             updateModalWishlistBtn();
             document.getElementById('product-modal').classList.add('active');
             document.getElementById('backdrop').classList.add('active');
+        }
+
+        function cycleModalColor() {
+            selectedColorIndex = (selectedColorIndex + 1) % availableColors.length;
+            updateModalColorDisplay();
+            updateModalWishlistBtn();
+        }
+
+        function updateModalColorDisplay() {
+            const colorObj = availableColors[selectedColorIndex];
+            const circleEl = document.getElementById('modal-color-circle');
+            const nameEl = document.getElementById('modal-color-name');
+
+            circleEl.className = `color-circle-big ${colorObj.class} active`;
+            nameEl.innerText = colorObj.name;
         }
 
         function changeModalMainImage(src, thumbElement) {
@@ -1403,7 +1527,8 @@
 
         function addCurrentProductToCart() {
             if (currentModalProduct) {
-                addToCart(currentModalProduct.id, modalQty);
+                const colorObj = availableColors[selectedColorIndex];
+                addToCartFull(currentModalProduct, colorObj.name, modalQty);
                 closeProductModal();
             }
         }
