@@ -11,7 +11,7 @@ window.addEventListener('load', () => {
     }, 1800);
 });
 
-// Database of products with isolated images (Box image is strictly for specs/box section)
+// Database of products with isolated images
 let products = [
     {
         id: 1,
@@ -21,12 +21,12 @@ let products = [
         tagline: 'Ультралегка бездротова ігрова мишка з флагманським сенсором PAW3395.',
         price: 1549,
         badge: 'NEW',
-        image: 'images/attack-shark-x3-white.jpg',
+        image: 'attack-shark-x3-white.jpg',
         colors: [
-            { name: 'White', hex: '#ffffff', img: 'images/attack-shark-x3-white.jpg' },
-            { name: 'Black', hex: '#111111', img: 'images/attack-shark-x3-black.jpg' }
+            { name: 'White', hex: '#ffffff', img: 'attack-shark-x3-white.jpg' },
+            { name: 'Black', hex: '#111111', img: 'attack-shark-x3-black.jpg' }
         ],
-        boxImage: 'images/attack-shark-x3-box.jpg',
+        boxImage: 'attack-shark-x3-box.jpg',
         specs: {
             sensor: 'PAW3395 (до 26000 DPI)',
             weight: '49 грамів',
@@ -68,7 +68,7 @@ function renderProducts(list) {
             <div class="product-card" onclick="openProduct(${index})">
                 <span class="badge">${p.badge}</span>
                 <button class="wishlist-btn-card" onclick="event.stopPropagation(); toggleWishlist(${p.id})">
-                    <span class="material-symbols-outlined" style="font-size: 18px; color: ${isWish ? '#ff2d55' : 'inherit'};">${isWish ? 'favorite' : 'favorite'}</span>
+                    <span class="material-symbols-outlined" style="font-size: 18px; color: ${isWish ? '#ff2d55' : 'inherit'};">favorite</span>
                 </button>
                 <div class="product-img-wrap">
                     <img src="${p.image}" alt="${p.name}">
@@ -161,7 +161,7 @@ function openProduct(index) {
             <div style="height: 340px; display: flex; align-items: center; justify-content: center; width: 100%;">
                 <img id="activeDetailImg" src="${activeImage}" alt="${p.name}" style="max-height: 320px; max-width: 100%; object-fit: contain; transition: opacity 0.3s ease;">
             </div>
-            <div style="margin-top: 30px; width: 100%; border-top: 1px solid var(--border-color); pt: 20px;">
+            <div style="margin-top: 30px; width: 100%; border-top: 1px solid var(--border-color); padding-top: 20px;">
                 <p style="font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">КОМПЛЕКТАЦІЯ ТА КОРОБКА:</p>
                 <img src="${p.boxImage}" alt="Box" style="height: 80px; border-radius: 10px; border: 1px solid var(--border-color); object-fit: cover;">
             </div>
