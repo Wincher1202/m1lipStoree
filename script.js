@@ -1,47 +1,46 @@
 let tg = window.Telegram.WebApp;
 tg.expand();
 
-// Прелоадер с исчезновением через 2.2 секунды
+// Cinematic Preloader timer
 window.addEventListener('load', () => {
     setTimeout(() => {
         const preloader = document.getElementById('preloader');
         if (preloader) {
             preloader.classList.add('fade-out');
         }
-    }, 2200);
+    }, 1800);
 });
 
-// База данных товаров с вашими фотографиями
+// Database of products with isolated images (Box image is strictly for specs/box section)
 let products = [
     {
         id: 1,
         category: 'mice',
         brand: 'ATTACK SHARK',
         name: 'ATTACK SHARK X3',
-        tagline: 'Ігрова мишка з сенсором PAW3395 • 49г',
+        tagline: 'Ультралегка бездротова ігрова мишка з флагманським сенсором PAW3395.',
         price: 1549,
-        badge: 'HOT',
+        badge: 'NEW',
         image: 'images/attack-shark-x3-white.jpg',
         colors: [
-            { name: 'Білий', hex: '#ffffff', img: 'images/attack-shark-x3-white.jpg' },
-            { name: 'Чорний', hex: '#111111', img: 'images/attack-shark-x3-black.jpg' }
+            { name: 'White', hex: '#ffffff', img: 'images/attack-shark-x3-white.jpg' },
+            { name: 'Black', hex: '#111111', img: 'images/attack-shark-x3-black.jpg' }
         ],
         boxImage: 'images/attack-shark-x3-box.jpg',
         specs: {
             sensor: 'PAW3395 (до 26000 DPI)',
-            weight: '49 грамів (ультралегка)',
-            connection: 'Бездротове 2.4G / Bluetooth 5.4 / Дротове',
-            battery: 'До 65 годин (300mAh)',
+            weight: '49 грамів',
+            connection: 'Tri-Mode (2.4G / BT / USB-C)',
+            battery: 'До 65 годин автономності',
             switches: 'Kailh Black Mamba (80 млн кліків)',
-            pollingRate: '125-1000 Hz',
-            compatibility: 'Windows / Mac'
+            pollingRate: '1000 Hz'
         }
     }
 ];
 
 let cart = [];
 let wishlist = [];
-let orders = JSON.parse(localStorage.getItem('milip_orders')) || [];
+let orders = JSON.parse(localStorage.getItem('nuke_orders')) || [];
 
 let currentSelectedColor = null;
 let currentQuantity = 1;
@@ -52,13 +51,13 @@ document.addEventListener('DOMContentLoaded', () => {
     updateAdminStats();
 });
 
-// Рендеринг карточек
+// Render Product Grid
 function renderProducts(list) {
     const grid = document.getElementById('productsGrid');
     if (!grid) return;
 
     if (list.length === 0) {
-        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">Нічого не знайдено</p>';
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">Товарів не знайдено</p>';
         return;
     }
 
@@ -69,17 +68,17 @@ function renderProducts(list) {
             <div class="product-card" onclick="openProduct(${index})">
                 <span class="badge">${p.badge}</span>
                 <button class="wishlist-btn-card" onclick="event.stopPropagation(); toggleWishlist(${p.id})">
-                    <span class="material-symbols-outlined" style="font-size: 18px; color: ${isWish ? '#ff3b30' : 'inherit'};">${isWish ? 'favorite' : 'favorite'}</span>
+                    <span class="material-symbols-outlined" style="font-size: 18px; color: ${isWish ? '#ff2d55' : 'inherit'};">${isWish ? 'favorite' : 'favorite'}</span>
                 </button>
                 <div class="product-img-wrap">
                     <img src="${p.image}" alt="${p.name}">
                 </div>
-                <span style="font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">${p.brand}</span>
+                <span class="card-brand">${p.brand}</span>
                 <h3 class="card-title">${p.name}</h3>
                 <p class="card-desc">${p.tagline}</p>
                 <div class="card-footer-row">
                     <span class="price">${p.price} ₴</span>
-                    <button class="buy-card-btn" onclick="event.stopPropagation(); quickAdd(${index})">Купити</button>
+                    <button class="buy-card-btn" onclick="event.stopPropagation(); quickAdd(${index})">КУПИТИ</button>
                 </div>
             </div>
         `;
@@ -87,7 +86,7 @@ function renderProducts(list) {
     grid.innerHTML = html;
 }
 
-// Избранное
+// Wishlist Logic
 function toggleWishlist(id) {
     const idx = wishlist.indexOf(id);
     if (idx > -1) {
@@ -96,14 +95,54 @@ function toggleWishlist(id) {
         wishlist.push(id);
     }
     renderProducts(products);
+    updateWishlistModalUI();
 }
 
-// Открытие страницы товара
+function openWishlistModal() {
+    updateWishlistModalUI();
+    document.getElementById('wishlistModal').classList.add('active');
+}
+
+function closeWishlistModal() {
+    document.getElementById('wishlistModal').classList.remove('active');
+}
+
+function updateWishlistModalUI() {
+    const container = document.getElementById('wishlistModalItems');
+    if (!container) return;
+
+    if (wishlist.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 20px;">Список обраного порожній</p>';
+        return;
+    }
+
+    let html = '';
+    wishlist.forEach(id => {
+        const p = products.find(item => item.id === id);
+        if (p) {
+            html += `
+                <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-secondary); padding: 12px; border-radius: 12px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <img src="${p.image}" alt="${p.name}" style="width: 40px; height: 40px; object-fit: contain;">
+                        <div>
+                            <h4 style="font-size: 13px; font-weight: 800;">${p.name}</h4>
+                            <span style="font-size: 12px; font-weight: 800; color: var(--accent);">${p.price} ₴</span>
+                        </div>
+                    </div>
+                    <button onclick="toggleWishlist(${p.id})" style="background:none; border:none; color:var(--text-muted); cursor:pointer;"><span class="material-symbols-outlined">delete</span></button>
+                </div>
+            `;
+        }
+    });
+    container.innerHTML = html;
+}
+
+// Product Detail Page
 function openProduct(index) {
     const p = products[index];
     const container = document.getElementById('productDetailContent');
     
-    currentSelectedColor = null; // Сброшено до выбора
+    currentSelectedColor = null;
     currentQuantity = 1;
     let activeImage = p.image;
 
@@ -111,51 +150,49 @@ function openProduct(index) {
     p.colors.forEach((c) => {
         colorsHtml += `
             <div class="color-swatch" 
-                 style="background: ${c.hex}; ${c.hex === '#ffffff' ? 'border: 1px solid #ccc;' : ''}" 
+                 style="background: ${c.hex}; ${c.hex === '#ffffff' ? 'border: 1px solid var(--border-color);' : ''}" 
                  onclick="changeProductColor(this, '${c.name}', '${c.img}')" 
                  title="${c.name}">
             </div>`;
     });
 
     container.innerHTML = `
-        <div class="detail-gallery-box" style="background: var(--bg-secondary); border-radius: 20px; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-            <div style="height: 300px; display: flex; align-items: center; justify-content: center; width: 100%;">
-                <img id="activeDetailImg" src="${activeImage}" alt="${p.name}" style="max-height: 280px; max-width: 100%; object-fit: contain; transition: 0.3s;">
+        <div style="background: var(--bg-secondary); border-radius: 28px; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid var(--border-color);">
+            <div style="height: 340px; display: flex; align-items: center; justify-content: center; width: 100%;">
+                <img id="activeDetailImg" src="${activeImage}" alt="${p.name}" style="max-height: 320px; max-width: 100%; object-fit: contain; transition: opacity 0.3s ease;">
             </div>
-            <div style="margin-top: 20px; width: 100%;">
-                <p style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">Комплектація та коробка:</p>
-                <img src="${p.boxImage}" alt="Box" style="height: 70px; border-radius: 8px; border: 1px solid var(--border-color); object-fit: cover;">
+            <div style="margin-top: 30px; width: 100%; border-top: 1px solid var(--border-color); pt: 20px;">
+                <p style="font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">КОМПЛЕКТАЦІЯ ТА КОРОБКА:</p>
+                <img src="${p.boxImage}" alt="Box" style="height: 80px; border-radius: 10px; border: 1px solid var(--border-color); object-fit: cover;">
             </div>
         </div>
 
         <div class="detail-info">
-            <span style="font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase;">${p.brand} • IN STOCK 🟢</span>
-            <h1 style="margin-top: 6px; font-size: 32px; font-weight: 800;">${p.name}</h1>
-            <div style="font-size: 24px; font-weight: 800; margin: 12px 0; color: var(--text-main);">${p.price} ₴</div>
-            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px; line-height: 1.5;">${p.tagline}. Створено для безальтернативної перемоги у будь-яких кіберспортивних баталіях.</p>
+            <span style="font-size: 11px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 1px;">${p.brand} • 🟢 IN STOCK</span>
+            <h1 style="margin-top: 8px; font-size: 36px; font-weight: 800; letter-spacing: -1px;">${p.name}</h1>
+            <div style="font-size: 28px; font-weight: 800; margin: 12px 0 20px 0; letter-spacing: -0.5px;">${p.price} ₴</div>
+            <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 28px; line-height: 1.6;">${p.tagline} Створено для безкомпромісної перемоги та повного контролю у грі.</p>
             
-            <div style="font-size: 13px; font-weight: 700; margin-bottom: 8px;">ВИБЕРИТЕ КОЛІР: <span id="selectedColorName" style="color: var(--accent);">Не вибрано</span></div>
+            <div style="font-size: 12px; font-weight: 800; margin-bottom: 8px; letter-spacing: 0.5px;">ОБЕРИТЕ КОЛІР: <span id="selectedColorName" style="color: var(--accent);">Не вибрано</span></div>
             <div class="color-options">${colorsHtml}</div>
 
-            <div style="font-size: 13px; font-weight: 700; margin: 16px 0 8px 0;">КІЛЬКІСТЬ:</div>
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
-                <button onclick="decrementQty()" style="width: 36px; height: 36px; border-radius: 8px; background: var(--bg-secondary); border: 1px solid var(--border-color); font-weight: 700; cursor: pointer;">−</button>
-                <span id="qtyDisplay" style="font-size: 16px; font-weight: 700; min-width: 20px; text-align: center;">1</span>
-                <button onclick="incrementQty()" style="width: 36px; height: 36px; border-radius: 8px; background: var(--bg-secondary); border: 1px solid var(--border-color); font-weight: 700; cursor: pointer;">+</button>
+            <div style="font-size: 12px; font-weight: 800; margin: 20px 0 8px 0; letter-spacing: 0.5px;">КІЛЬКІСТЬ:</div>
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px;">
+                <button onclick="decrementQty()" style="width: 40px; height: 40px; border-radius: 10px; background: var(--bg-secondary); border: 1px solid var(--border-color); font-weight: 800; cursor: pointer;">−</button>
+                <span id="qtyDisplay" style="font-size: 16px; font-weight: 800; min-width: 24px; text-align: center;">1</span>
+                <button onclick="incrementQty()" style="width: 40px; height: 40px; border-radius: 10px; background: var(--bg-secondary); border: 1px solid var(--border-color); font-weight: 800; cursor: pointer;">+</button>
             </div>
 
-            <div style="font-size: 13px; font-weight: 700; margin-bottom: 8px;">ТЕХНІЧНІ ХАРАКТЕРИСТИКИ:</div>
-            <ul class="specs-list">
-                <li><b>Сенсор:</b> <span>${p.specs.sensor}</span></li>
-                <li><b>Вага:</b> <span>${p.specs.weight}</span></li>
-                <li><b>Підключення:</b> <span>${p.specs.connection}</span></li>
-                <li><b>Акумулятор:</b> <span>${p.specs.battery}</span></li>
-                <li><b>Перемикачі:</b> <span>${p.specs.switches}</span></li>
-                <li><b>Гарантія:</b> <span>1 місяць</span></li>
-            </ul>
+            <div style="font-size: 12px; font-weight: 800; margin-bottom: 12px; letter-spacing: 0.5px;">ТЕХНІЧНІ ХАРАКТЕРИСТИКИ:</div>
+            <div class="specs-grid-box">
+                <div class="spec-item"><span>СЕНСОР</span><b>${p.specs.sensor}</b></div>
+                <div class="spec-item"><span>ВАГА</span><b>${p.specs.weight}</b></div>
+                <div class="spec-item"><span>ПІДКЛЮЧЕННЯ</span><b>${p.specs.connection}</b></div>
+                <div class="spec-item"><span>АКУМУЛЯТОР</span><b>${p.specs.battery}</b></div>
+            </div>
 
-            <div style="margin-top: 30px; display: flex; gap: 12px;">
-                <button id="addToCartDetailBtn" class="btn-primary" style="flex: 1; padding: 16px; opacity: 0.6; cursor: not-allowed;" disabled onclick="addToCartFromDetail(${index})">SELECT COLOR FIRST</button>
+            <div style="margin-top: 36px;">
+                <button id="addToCartDetailBtn" class="btn-primary" style="width: 100%; padding: 18px; text-align: center; opacity: 0.5; cursor: not-allowed;" disabled onclick="addToCartFromDetail(${index})">SELECT COLOR FIRST</button>
             </div>
         </div>
     `;
@@ -194,7 +231,7 @@ function decrementQty() {
     }
 }
 
-// Навигация
+// Navigation & Filters
 function switchView(viewName) {
     document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
     if (viewName === 'home') document.getElementById('homeView').classList.add('active');
@@ -216,6 +253,7 @@ function filterCategory(cat) {
     }
 }
 
+// Cart Management
 function quickAdd(index) {
     const p = products[index];
     cart.push({
@@ -241,7 +279,6 @@ function addToCartFromDetail(index) {
     openCartSidebar();
 }
 
-// Корзина
 const cartSidebar = document.getElementById('cartSidebar');
 const cartOverlay = document.getElementById('cartOverlay');
 
@@ -267,7 +304,7 @@ function updateCartUI() {
     let totalItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
     if (cart.length === 0) {
-        list.innerHTML = '<div style="text-align: center; color: var(--text-muted); margin-top: 40px;">Кошик порожній</div>';
+        list.innerHTML = '<div style="text-align: center; color: var(--text-muted); margin-top: 60px;">Кошик порожній</div>';
         badge.style.display = 'none';
         totalEl.innerText = '0 ₴';
         return;
@@ -282,10 +319,10 @@ function updateCartUI() {
         let itemTotal = item.price * item.quantity;
         totalSum += itemTotal;
         html += `
-            <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-secondary); padding: 12px; border-radius: 10px; margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-secondary); padding: 16px; border-radius: 14px; margin-bottom: 12px; border: 1px solid var(--border-color);">
                 <div>
-                    <h4 style="font-size: 14px; font-weight: 700;">${item.name}</h4>
-                    <p style="font-size: 12px; color: var(--text-muted);">Колір: ${item.color} | К-сть: ${item.quantity}</p>
+                    <h4 style="font-size: 14px; font-weight: 800;">${item.name}</h4>
+                    <p style="font-size: 12px; color: var(--text-muted); margin: 2px 0;">Колір: ${item.color} | К-сть: ${item.quantity}</p>
                     <b style="font-size: 13px; color: var(--accent);">${itemTotal} ₴</b>
                 </div>
                 <button onclick="removeFromCart(${idx})" style="background:none; border:none; color:var(--text-muted); cursor:pointer;"><span class="material-symbols-outlined">delete</span></button>
@@ -301,6 +338,7 @@ function removeFromCart(idx) {
     updateCartUI();
 }
 
+// Checkout & Telegram
 function openCheckoutModal() {
     if (cart.length === 0) return;
     closeCartSidebar();
@@ -335,15 +373,15 @@ function submitOrderToTelegram() {
     };
 
     orders.push(orderData);
-    localStorage.setItem('milip_orders', JSON.stringify(orders));
+    localStorage.setItem('nuke_orders', JSON.stringify(orders));
     updateAdminStats();
 
-    let message = `Нове замовлення Milip Store:\n\n${itemsText}\n\nСума: ${totalPrice} ₴\nІм'я: ${name}\nКонтакт: ${contact}\nКоментар: ${comment}`;
+    let message = `Нове замовлення NUKE STORE:\n\n${itemsText}\n\nСума: ${totalPrice} ₴\nІм'я: ${name}\nКонтакт: ${contact}\nКоментар: ${comment}`;
 
     if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
         tg.sendData(message);
     } else {
-        alert('Замовлення успішно створено!\n\n' + message);
+        alert('Замовлення успішно сформовано!\n\n' + message);
         cart = [];
         updateCartUI();
         closeCheckoutModal();
@@ -351,14 +389,14 @@ function submitOrderToTelegram() {
     }
 }
 
-// Поиск
+// Search Overlay
 const searchToggle = document.getElementById('searchToggle');
-const searchContainer = document.getElementById('searchContainer');
+const searchOverlayBox = document.getElementById('searchOverlayBox');
 const searchInput = document.getElementById('searchInput');
 
 searchToggle.addEventListener('click', () => {
-    searchContainer.classList.toggle('active');
-    if (searchContainer.classList.contains('active')) searchInput.focus();
+    searchOverlayBox.classList.toggle('active');
+    if (searchOverlayBox.classList.contains('active')) searchInput.focus();
 });
 
 searchInput.addEventListener('input', (e) => {
@@ -367,7 +405,15 @@ searchInput.addEventListener('input', (e) => {
     renderProducts(filtered);
 });
 
-// Админ панель
+function quickSearchTag(keyword) {
+    searchInput.value = keyword;
+    const filtered = products.filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()) || p.brand.toLowerCase().includes(keyword.toLowerCase()));
+    renderProducts(filtered);
+    searchOverlayBox.classList.remove('active');
+    switchView('home');
+}
+
+// Admin Panel
 function openAdminPanel() {
     switchView('admin');
 }
@@ -388,9 +434,9 @@ function renderAdminOrders() {
         html += `
             <div class="admin-order-card">
                 <b>Замовлення #${o.id} від ${o.date}</b>
-                <p style="font-size: 13px; margin: 6px 0; white-space: pre-line;">${o.items}</p>
+                <p style="font-size: 13px; margin: 8px 0; white-space: pre-line;">${o.items}</p>
                 <p style="font-size: 13px;"><b>Сума:</b> ${o.total} ₴ | <b>Клієнт:</b> ${o.name} (${o.contact})</p>
-                <p style="font-size: 12px; color: var(--text-muted);">Коментар: ${o.comment}</p>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Коментар: ${o.comment}</p>
             </div>
         `;
     });
