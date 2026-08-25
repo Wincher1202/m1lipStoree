@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M1lipStore — Магазин девайсів</title>
+    <!-- Підключаємо Telegram Web App скрипт -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Підключаємо файл стилів -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>M1LIPSTORE</header>
+
+    <div class="container">
+        <!-- Категорії -->
+        <div class="categories">
+            <button class="cat-btn active">Усі</button>
+            <button class="cat-btn">Мишки</button>
+            <button class="cat-btn">Клавіатури</button>
+            <button class="cat-btn">Навушники</button>
+            <button class="cat-btn">Інше</button>
+        </div>
+
+        <!-- Товари -->
+        <div class="products-grid">
+            
+            <!-- Товар 1: Мишка з ТЗ -->
+            <div class="product-card" data-title="MCHOSE A7 V2 Pro" data-price="2449">
+                <div>
+                    <div class="product-title">MCHOSE A7 V2 Pro</div>
+                    <div class="product-price">2449 UAH</div>
+                    <div class="colors-section">
+                        Колір:
+                        <div class="colors">
+                            <div class="color-dot active" style="background: #ffffff;" data-color="Білий"></div>
+                            <div class="color-dot" style="background: #1e3a8a;" data-color="Синій"></div>
+                            <div class="color-dot" style="background: #111111;" data-color="Чорний"></div>
+                        </div>
+                    </div>
+                </div>
+                <button class="buy-btn" onclick="addToCart(this)">Додати в кошик</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Нижня панель кошика -->
+    <div class="cart-bar" id="cartBar" style="display: none;">
+        <div>Обрано товарів: <span id="cartCount">0</span> | <span id="cartTotal">0</span> UAH</div>
+        <button class="checkout-btn" onclick="sendOrder()">Оформити замовлення</button>
+    </div>
+
+    <!-- Підключаємо файл логіки (JavaScript) -->
+    <script src="script.js"></script>
+</body>
+</html>
