@@ -360,10 +360,12 @@
 
         .hero-card-3d img {
             width: 100%;
-            height: 420px;
+            height: auto;
+            max-height: 420px;
             object-fit: contain;
             border-radius: var(--radius-sm);
             display: block;
+            margin: 0 auto;
             transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -491,23 +493,29 @@
             transition: var(--transition);
         }
 
+        /* ИСПРАВЛЕНИЕ РАМОК И ФОРМАТА ФОТО НА 100% ФУЛЛ ЭКРАН */
         .product-img-wrap {
             width: 100%;
-            height: 250px; 
+            height: auto;
+            min-height: 220px;
+            max-height: 340px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             position: relative;
-            margin: 12px 0;
+            margin: 16px 0;
             background: var(--bg-primary);
             border-radius: var(--radius-sm);
+            padding: 10px;
         }
 
         .product-img-wrap img {
             width: 100%;
             height: 100%;
+            max-height: 320px;
             object-fit: contain;
+            display: block;
             transition: transform 0.3s ease;
         }
 
@@ -736,7 +744,9 @@
         
         .modal-main-img-wrap {
             width: 100%;
-            height: 350px;
+            height: auto;
+            min-height: 300px;
+            max-height: 400px;
             background: var(--bg-primary);
             border-radius: var(--radius-md);
             display: flex;
@@ -744,10 +754,12 @@
             justify-content: center;
             overflow: hidden;
             box-sizing: border-box;
+            padding: 10px;
         }
         .modal-main-img { 
             width: 100%; 
             height: 100%; 
+            max-height: 380px;
             object-fit: contain;
         }
         
@@ -1121,7 +1133,6 @@
         }
 
         function openHeroProductModal() {
-            // Открываем текущий товар из слайдера в модалке
             const currentHeroProd = heroProducts[(heroIndex - 1 + heroProducts.length) % heroProducts.length];
             openProductModal(currentHeroProd);
         }
@@ -1146,7 +1157,6 @@
             renderCatalog();
             updateBadges();
 
-            // Запуск смены новинок в херо каждые 4 секунды
             setInterval(updateHeroBanner, 4000);
 
             window.addEventListener('scroll', () => {
