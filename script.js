@@ -1,7 +1,6 @@
 let tg = window.Telegram.WebApp;
 tg.expand();
 
-// Cinematic Preloader timer
 window.addEventListener('load', () => {
     setTimeout(() => {
         const preloader = document.getElementById('preloader');
@@ -11,7 +10,6 @@ window.addEventListener('load', () => {
     }, 1800);
 });
 
-// Database of products with isolated images
 let products = [
     {
         id: 1,
@@ -21,12 +19,12 @@ let products = [
         tagline: 'Ультралегка бездротова ігрова мишка з флагманським сенсором PAW3395.',
         price: 1549,
         badge: 'NEW',
-        image: 'attack-shark-x3-white.jpg',
+        image: 'images/attack-shark-x3-white.jpg',
         colors: [
-            { name: 'White', hex: '#ffffff', img: 'attack-shark-x3-white.jpg' },
-            { name: 'Black', hex: '#111111', img: 'attack-shark-x3-black.jpg' }
+            { name: 'White', hex: '#ffffff', img: 'images/attack-shark-x3-white.jpg' },
+            { name: 'Black', hex: '#111111', img: 'images/attack-shark-x3-black.jpg' }
         ],
-        boxImage: 'attack-shark-x3-box.jpg',
+        boxImage: 'images/attack-shark-x3-box.jpg',
         specs: {
             sensor: 'PAW3395 (до 26000 DPI)',
             weight: '49 грамів',
@@ -51,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateAdminStats();
 });
 
-// Render Product Grid
 function renderProducts(list) {
     const grid = document.getElementById('productsGrid');
     if (!grid) return;
@@ -86,7 +83,6 @@ function renderProducts(list) {
     grid.innerHTML = html;
 }
 
-// Wishlist Logic
 function toggleWishlist(id) {
     const idx = wishlist.indexOf(id);
     if (idx > -1) {
@@ -137,7 +133,6 @@ function updateWishlistModalUI() {
     container.innerHTML = html;
 }
 
-// Product Detail Page
 function openProduct(index) {
     const p = products[index];
     const container = document.getElementById('productDetailContent');
@@ -231,7 +226,6 @@ function decrementQty() {
     }
 }
 
-// Navigation & Filters
 function switchView(viewName) {
     document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
     if (viewName === 'home') document.getElementById('homeView').classList.add('active');
@@ -253,7 +247,6 @@ function filterCategory(cat) {
     }
 }
 
-// Cart Management
 function quickAdd(index) {
     const p = products[index];
     cart.push({
@@ -338,7 +331,6 @@ function removeFromCart(idx) {
     updateCartUI();
 }
 
-// Checkout & Telegram
 function openCheckoutModal() {
     if (cart.length === 0) return;
     closeCartSidebar();
@@ -389,7 +381,6 @@ function submitOrderToTelegram() {
     }
 }
 
-// Search Overlay
 const searchToggle = document.getElementById('searchToggle');
 const searchOverlayBox = document.getElementById('searchOverlayBox');
 const searchInput = document.getElementById('searchInput');
@@ -413,7 +404,6 @@ function quickSearchTag(keyword) {
     switchView('home');
 }
 
-// Admin Panel
 function openAdminPanel() {
     switchView('admin');
 }
@@ -430,6 +420,7 @@ function renderAdminOrders() {
         return;
     }
     let html = '';
+    orders.slice().reverse().echo = function() {}; // safe fallback
     orders.slice().reverse().forEach(o => {
         html += `
             <div class="admin-order-card">
