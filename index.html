@@ -342,7 +342,7 @@
             background: var(--bg-secondary);
             border: 1px solid var(--border-light);
             border-radius: var(--radius-lg);
-            padding: 20px;
+            padding: 16px;
             box-shadow: var(--shadow-card);
             width: 100%;
             max-width: 600px;
@@ -353,19 +353,18 @@
 
         .hero-card-3d .product-tag {
             position: absolute;
-            top: 30px;
-            left: 30px;
+            top: 26px;
+            left: 26px;
             z-index: 5;
         }
 
+        /* ПОЛНОЕ ЗАПОЛНЕНИЕ КАРТИНКОЙ БЕЗ ПУСТОГО ПРОСТРАНСТВА */
         .hero-card-3d img {
             width: 100%;
-            height: auto;
-            max-height: 420px;
-            object-fit: contain;
+            height: 340px;
+            object-fit: cover;
             border-radius: var(--radius-sm);
             display: block;
-            margin: 0 auto;
             transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -493,11 +492,10 @@
             transition: var(--transition);
         }
 
+        /* ПОЛНОЕ ЗАПОЛНЕНИЕ КАРТИНКОЙ В КАТАЛОГЕ БЕЗ БИЛЫХ ПРОСТРАНСТВ */
         .product-img-wrap {
             width: 100%;
-            height: auto;
-            min-height: 220px;
-            max-height: 340px;
+            height: 280px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -506,19 +504,17 @@
             margin: 16px 0;
             background: var(--bg-primary);
             border-radius: var(--radius-sm);
-            padding: 10px;
         }
 
         .product-img-wrap img {
             width: 100%;
             height: 100%;
-            max-height: 320px;
-            object-fit: contain;
+            object-fit: cover;
             display: block;
-            transition: transform 0.3s ease;
+            transition: transform 0.4s ease;
         }
 
-        .product-card:hover .product-img-wrap img { transform: scale(1.03); }
+        .product-card:hover .product-img-wrap img { transform: scale(1.05); }
 
         .color-picker-preview {
             display: flex;
@@ -644,7 +640,7 @@
             border: 1px solid var(--border-light);
         }
 
-        .cart-item img { width: 60px; height: 60px; object-fit: contain; background: var(--bg-secondary); border-radius: 8px; }
+        .cart-item img { width: 60px; height: 60px; object-fit: cover; background: var(--bg-secondary); border-radius: 8px; }
 
         .quantity-controls {
             display: flex;
@@ -740,11 +736,10 @@
             overflow-x: hidden;
         }
         
-        /* РАМКА ПОДСТРАИВАЕТСЯ ПОД РАЗМЕР ФОТОГРАФИИ */
+        /* КАРТИНКА В МОДАЛКЕ НА ВСЮ КАРТОЧКУ БЕЗ ПУСТОГО ПРОСТРАНСТВА */
         .modal-main-img-wrap {
             width: 100%;
-            height: auto;
-            max-height: 380px;
+            height: 360px;
             background: var(--bg-primary);
             border-radius: var(--radius-md);
             display: flex;
@@ -752,13 +747,11 @@
             justify-content: center;
             overflow: hidden;
             box-sizing: border-box;
-            padding: 10px;
         }
         .modal-main-img { 
             width: 100%; 
-            height: auto; 
-            max-height: 360px;
-            object-fit: contain;
+            height: 100%; 
+            object-fit: cover;
             display: block;
         }
         
@@ -772,9 +765,9 @@
             box-sizing: border-box;
         }
         .modal-thumb { 
-            width: 50px; 
-            height: 50px; 
-            object-fit: contain; 
+            width: 56px; 
+            height: 56px; 
+            object-fit: cover; 
             background: var(--bg-primary); 
             border: 2px solid var(--border-light); 
             border-radius: 6px; 
@@ -791,14 +784,13 @@
             overflow-x: hidden;
         }
 
-        /* ЕДИНАЯ СТРОКА ДЛЯ ЦВЕТА И КОЛИЧЕСТВА (СМЕЩЕНА ВПРАВО) */
         .modal-options-row {
             display: flex;
             align-items: center;
             justify-content: flex-start;
             gap: 35px;
             margin: 15px 0;
-            padding-left: 5px; /* Сдвиг вправо для красивого отступа */
+            padding-left: 5px;
         }
 
         .option-group {
@@ -814,7 +806,6 @@
             text-transform: uppercase;
         }
 
-        /* УВЕЛИЧЕННЫЕ КРУЖКИ ЦВЕТА С ТЕКСТОМ (С ПОДДЕРЖКОЙ DISABLED/OUT-OF-STOCK) */
         .color-selector-large {
             display: flex;
             align-items: center;
@@ -1023,13 +1014,10 @@
                 <p id="modal-desc" style="color: var(--text-secondary); margin: 8px 0; font-size: 0.85rem;"></p>
                 <div class="product-price" id="modal-price" style="font-size: 1.3rem; color: var(--accent); margin: 10px 0;">₴ 0</div>
 
-                <!-- ЕДИНАЯ СТРОКА ДЛЯ ЦВЕТА И КОЛИЧЕСТВА (СМЕЩЕНА ВПРАВО) -->
                 <div class="modal-options-row">
                     <div class="option-group">
                         <label>Color (<span id="modal-color-name" style="text-transform: capitalize;">white</span>)</label>
-                        <div class="color-selector-large" id="modal-color-selector">
-                            <!-- Динамически рендерится JS в зависимости от товара -->
-                        </div>
+                        <div class="color-selector-large" id="modal-color-selector"></div>
                     </div>
 
                     <div class="option-group">
@@ -1042,7 +1030,6 @@
                     </div>
                 </div>
 
-                <!-- КНОПКИ КОРЗИНЫ И СЕРДЕЧКА НА ОДНОМ УРОВНЕ -->
                 <div style="display: flex; gap: 10px; margin-top: 15px; align-items: center;">
                     <button class="btn-primary" style="flex-grow: 1; justify-content: center; padding: 12px;" onclick="addCurrentProductToCart()">Додати в кошик</button>
                     <button class="wishlist-btn" id="modal-wishlist-btn" onclick="toggleCurrentWishlist()" style="position: static; width: 44px; height: 44px; flex-shrink: 0;">
@@ -1138,7 +1125,6 @@
                     { label: 'MATERIAL', value: 'CARBON FIBER' }
                 ],
                 colClass: 'col-7',
-                // Для R5 Ultra: белый доступен, черный и розовый перекрещены (out-of-stock)
                 colors: [
                     { name: 'white', class: 'white', available: true },
                     { name: 'black', class: 'black', available: false },
@@ -1205,7 +1191,6 @@
         let selectedColorIndex = 0;
         let currentCategoryFilter = 'All';
 
-        // HERO ROTATOR
         let heroIndex = 0;
         const heroProducts = products.filter(p => p.tag.includes('NEW') || p.tag.includes('HOT') || p.tag.includes('BESTSELLER'));
 
@@ -1317,7 +1302,7 @@
             if (!product) return;
 
             const activeColors = product.colors || [{ name: 'white', available: true }];
-            const colorObj = activeColors[selectedColorIndex] || activeColor[0];
+            const colorObj = activeColors[selectedColorIndex] || activeColors[0];
 
             const existingIndex = wishlist.findIndex(item => item.id === productId && item.color === colorObj.name);
             const isAdding = existingIndex === -1;
@@ -1484,7 +1469,7 @@
             container.innerHTML = filtered.map(p => `
                 <a class="search-result-item" onclick="toggleSearch(false); openProductModal(products.find(x => x.id === '${p.id}'))">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <img src="${p.img}" style="width: 40px; height: 40px; object-fit: contain;">
+                        <img src="${p.img}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;">
                         <div><strong style="font-size: 0.9rem;">${p.brand} ${p.title}</strong></div>
                     </div>
                     <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.9rem;">${formatPrice(p.price)}</span>
@@ -1497,7 +1482,6 @@
             modalQty = 1;
             selectedColorIndex = 0;
             
-            // Если выбранный первый цвет недоступен, найдем первый доступный
             if (product.colors && product.colors.length > 0) {
                 const firstAvailableIdx = product.colors.findIndex(c => c.available);
                 if (firstAvailableIdx !== -1) selectedColorIndex = firstAvailableIdx;
@@ -1530,7 +1514,7 @@
 
         function selectModalColor(index) {
             const colorObj = currentModalProduct.colors[index];
-            if (!colorObj.available) return; // Нельзя выбрать перекрещенный цвет
+            if (!colorObj.available) return;
             selectedColorIndex = index;
             updateModalColorDisplay();
             updateModalWishlistBtn();
