@@ -19,12 +19,12 @@ let products = [
         tagline: 'Ультралегка бездротова ігрова мишка з флагманським сенсором PAW3395.',
         price: 1549,
         badge: 'NEW',
-        image: 'images/attack-shark-x3-white.jpg',
+        image: 'attack-shark-x3-white.jpg',
         colors: [
-            { name: 'White', hex: '#ffffff', img: 'images/attack-shark-x3-white.jpg' },
-            { name: 'Black', hex: '#111111', img: 'images/attack-shark-x3-black.jpg' }
+            { name: 'White', hex: '#ffffff', img: 'attack-shark-x3-white.jpg' },
+            { name: 'Black', hex: '#111111', img: 'attack-shark-x3-black.jpg' }
         ],
-        boxImage: 'images/attack-shark-x3-box.jpg',
+        boxImage: 'attack-shark-x3-box.jpg',
         specs: {
             sensor: 'PAW3395 (до 26000 DPI)',
             weight: '49 грамів',
@@ -420,7 +420,6 @@ function renderAdminOrders() {
         return;
     }
     let html = '';
-    orders.slice().reverse().echo = function() {}; // safe fallback
     orders.slice().reverse().forEach(o => {
         html += `
             <div class="admin-order-card">
