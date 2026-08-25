@@ -1,7 +1,17 @@
 let tg = window.Telegram.WebApp;
 tg.expand();
 
-// База данных товаров с привязкой реальных изображений
+// Прелоадер с исчезновением через 2.2 секунды
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        const preloader = document.getElementById('preloader');
+        if (preloader) {
+            preloader.classList.add('fade-out');
+        }
+    }, 2200);
+});
+
+// База данных товаров с вашими фотографиями
 let products = [
     {
         id: 1,
@@ -24,15 +34,15 @@ let products = [
             battery: 'До 65 годин (300mAh)',
             switches: 'Kailh Black Mamba (80 млн кліків)',
             pollingRate: '125-1000 Hz',
-            compatibility: 'Windows Vista/XP/7/8/10/11 та Mac'
+            compatibility: 'Windows / Mac'
         }
     }
 ];
 
 let cart = [];
+let wishlist = [];
 let orders = JSON.parse(localStorage.getItem('milip_orders')) || [];
 
-// Состояние текущего просмотра товара
 let currentSelectedColor = null;
 let currentQuantity = 1;
 
@@ -42,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateAdminStats();
 });
 
-// Рендеринг карточек в каталоге
+// Рендеринг карточек
 function renderProducts(list) {
     const grid = document.getElementById('productsGrid');
     if (!grid) return;
@@ -54,18 +64,22 @@ function renderProducts(list) {
 
     let html = '';
     list.forEach((p, index) => {
+        let isWish = wishlist.includes(p.id);
         html += `
-            <div class="product-card" onclick="openProduct(${p.id - 1})">
-                <span class="badge hot">${p.badge}</span>
+            <div class="product-card" onclick="openProduct(${index})">
+                <span class="badge">${p.badge}</span>
+                <button class="wishlist-btn-card" onclick="event.stopPropagation(); toggleWishlist(${p.id})">
+                    <span class="material-symbols-outlined" style="font-size: 18px; color: ${isWish ? '#ff3b30' : 'inherit'};">${isWish ? 'favorite' : 'favorite'}</span>
+                </button>
                 <div class="product-img-wrap">
-                    <img src="${p.image}" alt="${p.name}" style="max-height: 140px; max-width: 100%; object-fit: contain;">
+                    <img src="${p.image}" alt="${p.name}">
                 </div>
                 <span style="font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">${p.brand}</span>
                 <h3 class="card-title">${p.name}</h3>
                 <p class="card-desc">${p.tagline}</p>
                 <div class="card-footer-row">
                     <span class="price">${p.price} ₴</span>
-                    <button class="buy-card-btn" onclick="event.stopPropagation(); quickAdd(${p.id - 1})">Купити</button>
+                    <button class="buy-card-btn" onclick="event.stopPropagation(); quickAdd(${index})">Купити</button>
                 </div>
             </div>
         `;
@@ -73,20 +87,30 @@ function renderProducts(list) {
     grid.innerHTML = html;
 }
 
-// Открытие полноценной страницы товара
+// Избранное
+function toggleWishlist(id) {
+    const idx = wishlist.indexOf(id);
+    if (idx > -1) {
+        wishlist.splice(idx, 1);
+    } else {
+        wishlist.push(id);
+    }
+    renderProducts(products);
+}
+
+// Открытие страницы товара
 function openProduct(index) {
     const p = products[index];
     const container = document.getElementById('productDetailContent');
     
-    // Сбрасываем выбор на первый цвет по умолчанию
-    currentSelectedColor = p.colors[0].name;
+    currentSelectedColor = null; // Сброшено до выбора
     currentQuantity = 1;
-    let activeImage = p.colors[0].img;
+    let activeImage = p.image;
 
     let colorsHtml = '';
-    p.colors.forEach((c, i) => {
+    p.colors.forEach((c) => {
         colorsHtml += `
-            <div class="color-swatch ${i === 0 ? 'active' : ''}" 
+            <div class="color-swatch" 
                  style="background: ${c.hex}; ${c.hex === '#ffffff' ? 'border: 1px solid #ccc;' : ''}" 
                  onclick="changeProductColor(this, '${c.name}', '${c.img}')" 
                  title="${c.name}">
@@ -94,46 +118,44 @@ function openProduct(index) {
     });
 
     container.innerHTML = `
-        <div class="detail-gallery-box">
-            <div class="main-detail-img-wrap">
-                <img id="activeDetailImg" src="${activeImage}" alt="${p.name}" style="max-height: 320px; max-width: 100%; object-fit: contain; transition: 0.3s;">
+        <div class="detail-gallery-box" style="background: var(--bg-secondary); border-radius: 20px; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <div style="height: 300px; display: flex; align-items: center; justify-content: center; width: 100%;">
+                <img id="activeDetailImg" src="${activeImage}" alt="${p.name}" style="max-height: 280px; max-width: 100%; object-fit: contain; transition: 0.3s;">
             </div>
-            <div class="box-preview-section" style="margin-top: 20px;">
+            <div style="margin-top: 20px; width: 100%;">
                 <p style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">Комплектація та коробка:</p>
-                <img src="${p.boxImage}" alt="Box" style="height: 80px; border-radius: 8px; border: 1px solid var(--border-color); object-fit: cover;">
+                <img src="${p.boxImage}" alt="Box" style="height: 70px; border-radius: 8px; border: 1px solid var(--border-color); object-fit: cover;">
             </div>
         </div>
 
         <div class="detail-info">
             <span style="font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase;">${p.brand} • IN STOCK 🟢</span>
-            <h1 style="margin-top: 6px;">${p.name}</h1>
-            <div class="detail-price">${p.price} ₴</div>
-            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px; line-height: 1.5;">${p.tagline}. Забезпечує максимальну точність в іграх та комфорт при щоденному використанні.</p>
+            <h1 style="margin-top: 6px; font-size: 32px; font-weight: 800;">${p.name}</h1>
+            <div style="font-size: 24px; font-weight: 800; margin: 12px 0; color: var(--text-main);">${p.price} ₴</div>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px; line-height: 1.5;">${p.tagline}. Створено для безальтернативної перемоги у будь-яких кіберспортивних баталіях.</p>
             
-            <div class="options-title">Виберіть колір: <b id="selectedColorName" style="color: var(--text-main);">${currentSelectedColor}</b></div>
+            <div style="font-size: 13px; font-weight: 700; margin-bottom: 8px;">ВИБЕРИТЕ КОЛІР: <span id="selectedColorName" style="color: var(--accent);">Не вибрано</span></div>
             <div class="color-options">${colorsHtml}</div>
 
-            <div class="options-title" style="margin-top: 16px;">Кількість:</div>
-            <div class="quantity-selector" style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-                <button onclick="decrementQty()" class="qty-btn">−</button>
+            <div style="font-size: 13px; font-weight: 700; margin: 16px 0 8px 0;">КІЛЬКІСТЬ:</div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+                <button onclick="decrementQty()" style="width: 36px; height: 36px; border-radius: 8px; background: var(--bg-secondary); border: 1px solid var(--border-color); font-weight: 700; cursor: pointer;">−</button>
                 <span id="qtyDisplay" style="font-size: 16px; font-weight: 700; min-width: 20px; text-align: center;">1</span>
-                <button onclick="incrementQty()" class="qty-btn">+</button>
+                <button onclick="incrementQty()" style="width: 36px; height: 36px; border-radius: 8px; background: var(--bg-secondary); border: 1px solid var(--border-color); font-weight: 700; cursor: pointer;">+</button>
             </div>
 
-            <div class="options-title">Технічні характеристики:</div>
+            <div style="font-size: 13px; font-weight: 700; margin-bottom: 8px;">ТЕХНІЧНІ ХАРАКТЕРИСТИКИ:</div>
             <ul class="specs-list">
-                <li><b>Сенсор:</b> ${p.specs.sensor}</li>
-                <li><b>Вага:</b> ${p.specs.weight}</li>
-                <li><b>Підключення:</b> ${p.specs.connection}</li>
-                <li><b>Акумулятор:</b> ${p.specs.battery}</li>
-                <li><b>Мікроперемикачі:</b> ${p.specs.switches}</li>
-                <li><b>Частота оновлення:</b> ${p.specs.pollingRate}</li>
-                <li><b>Сумісність:</b> ${p.specs.compatibility}</li>
-                <li><b>Гарантія:</b> 1 місяць</li>
+                <li><b>Сенсор:</b> <span>${p.specs.sensor}</span></li>
+                <li><b>Вага:</b> <span>${p.specs.weight}</span></li>
+                <li><b>Підключення:</b> <span>${p.specs.connection}</span></li>
+                <li><b>Акумулятор:</b> <span>${p.specs.battery}</span></li>
+                <li><b>Перемикачі:</b> <span>${p.specs.switches}</span></li>
+                <li><b>Гарантія:</b> <span>1 місяць</span></li>
             </ul>
 
-            <div class="detail-actions" style="margin-top: 24px;">
-                <button class="btn-primary" style="flex: 1; padding: 14px; font-size: 15px;" onclick="addToCartFromDetail(${index})">Додати в кошик</button>
+            <div style="margin-top: 30px; display: flex; gap: 12px;">
+                <button id="addToCartDetailBtn" class="btn-primary" style="flex: 1; padding: 16px; opacity: 0.6; cursor: not-allowed;" disabled onclick="addToCartFromDetail(${index})">SELECT COLOR FIRST</button>
             </div>
         </div>
     `;
@@ -141,13 +163,17 @@ function openProduct(index) {
     switchView('product-detail');
 }
 
-// Интерактивное переменение картинки при выборе цвета на странице товара
 function changeProductColor(el, colorName, imgPath) {
     document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
     el.classList.add('active');
     currentSelectedColor = colorName;
     document.getElementById('selectedColorName').innerText = colorName;
     
+    const btn = document.getElementById('addToCartDetailBtn');
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.innerText = 'ADD TO CART →';
+
     const imgEl = document.getElementById('activeDetailImg');
     imgEl.style.opacity = '0';
     setTimeout(() => {
@@ -156,7 +182,6 @@ function changeProductColor(el, colorName, imgPath) {
     }, 150);
 }
 
-// Управление количеством
 function incrementQty() {
     currentQuantity++;
     document.getElementById('qtyDisplay').innerText = currentQuantity;
@@ -169,7 +194,7 @@ function decrementQty() {
     }
 }
 
-// Переключение разделов
+// Навигация
 function switchView(viewName) {
     document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
     if (viewName === 'home') document.getElementById('homeView').classList.add('active');
@@ -181,7 +206,6 @@ function switchView(viewName) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Фильтрация категорий
 function filterCategory(cat) {
     switchView('home');
     if (cat === 'all') {
@@ -192,7 +216,6 @@ function filterCategory(cat) {
     }
 }
 
-// Быстрое добавление из каталога
 function quickAdd(index) {
     const p = products[index];
     cart.push({
@@ -205,8 +228,8 @@ function quickAdd(index) {
     openCartSidebar();
 }
 
-// Добавление со страницы детального просмотра с учетом выбранного цвета и количества
 function addToCartFromDetail(index) {
+    if (!currentSelectedColor) return;
     const p = products[index];
     cart.push({
         name: p.name,
@@ -218,7 +241,7 @@ function addToCartFromDetail(index) {
     openCartSidebar();
 }
 
-// Управление корзиной
+// Корзина
 const cartSidebar = document.getElementById('cartSidebar');
 const cartOverlay = document.getElementById('cartOverlay');
 
@@ -233,30 +256,25 @@ function closeCartSidebar() {
 }
 
 document.getElementById('cartBtn').addEventListener('click', openCartSidebar);
-document.getElementById('mobCartTrigger').addEventListener('click', (e) => { e.preventDefault(); openCartSidebar(); });
 document.getElementById('closeCart').addEventListener('click', closeCartSidebar);
 cartOverlay.addEventListener('click', closeCartSidebar);
 
 function updateCartUI() {
     const list = document.getElementById('cartItemsList');
     const badge = document.getElementById('cartCount');
-    const mobBadge = document.getElementById('mobCartBadge');
     const totalEl = document.getElementById('cartTotalPrice');
 
     let totalItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
     if (cart.length === 0) {
-        list.innerHTML = '<div class="empty-cart">Кошик порожній</div>';
+        list.innerHTML = '<div style="text-align: center; color: var(--text-muted); margin-top: 40px;">Кошик порожній</div>';
         badge.style.display = 'none';
-        mobBadge.style.display = 'none';
         totalEl.innerText = '0 ₴';
         return;
     }
 
     badge.style.display = 'flex';
     badge.innerText = totalItemsCount;
-    mobBadge.style.display = 'flex';
-    mobBadge.innerText = totalItemsCount;
 
     let html = '';
     let totalSum = 0;
@@ -264,10 +282,10 @@ function updateCartUI() {
         let itemTotal = item.price * item.quantity;
         totalSum += itemTotal;
         html += `
-            <div class="cart-item" style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-secondary); padding: 12px; border-radius: 10px; margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-secondary); padding: 12px; border-radius: 10px; margin-bottom: 10px;">
                 <div>
                     <h4 style="font-size: 14px; font-weight: 700;">${item.name}</h4>
-                    <p style="font-size: 12px; color: var(--text-muted);">Колір: ${item.color} | Кількість: ${item.quantity}</p>
+                    <p style="font-size: 12px; color: var(--text-muted);">Колір: ${item.color} | К-сть: ${item.quantity}</p>
                     <b style="font-size: 13px; color: var(--accent);">${itemTotal} ₴</b>
                 </div>
                 <button onclick="removeFromCart(${idx})" style="background:none; border:none; color:var(--text-muted); cursor:pointer;"><span class="material-symbols-outlined">delete</span></button>
@@ -283,7 +301,6 @@ function removeFromCart(idx) {
     updateCartUI();
 }
 
-// Оформление заказа
 function openCheckoutModal() {
     if (cart.length === 0) return;
     closeCartSidebar();
@@ -300,7 +317,7 @@ function submitOrderToTelegram() {
     const comment = document.getElementById('orderComment').value.trim();
 
     if (!name || !contact) {
-        alert('Будь ласка, вкажіть ім\'я та контакт (Telegram / телефон)');
+        alert('Будь ласка, вкажіть ім\'я та контакт!');
         return;
     }
 
@@ -321,12 +338,12 @@ function submitOrderToTelegram() {
     localStorage.setItem('milip_orders', JSON.stringify(orders));
     updateAdminStats();
 
-    let message = `Доброго дня! Бажаю оформити замовлення:\n\n${itemsText}\n\nЗагальна сума: ${totalPrice} ₴\nІм'я: ${name}\nКонтакт: ${contact}\nКоментар: ${comment}`;
+    let message = `Нове замовлення Milip Store:\n\n${itemsText}\n\nСума: ${totalPrice} ₴\nІм'я: ${name}\nКонтакт: ${contact}\nКоментар: ${comment}`;
 
     if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
         tg.sendData(message);
     } else {
-        alert('Замовлення успішно сформовано!\n\n' + message);
+        alert('Замовлення успішно створено!\n\n' + message);
         cart = [];
         updateCartUI();
         closeCheckoutModal();
@@ -344,14 +361,9 @@ searchToggle.addEventListener('click', () => {
     if (searchContainer.classList.contains('active')) searchInput.focus();
 });
 
-function toggleSearchMobile() {
-    searchContainer.classList.toggle('active');
-    if (searchContainer.classList.contains('active')) searchInput.focus();
-}
-
 searchInput.addEventListener('input', (e) => {
     const val = e.target.value.toLowerCase();
-    const filtered = products.filter(p => p.name.toLowerCase().includes(val) || p.brand.toLowerCase().includes(val) || p.specs.sensor.toLowerCase().includes(val));
+    const filtered = products.filter(p => p.name.toLowerCase().includes(val) || p.brand.toLowerCase().includes(val));
     renderProducts(filtered);
 });
 
@@ -376,7 +388,7 @@ function renderAdminOrders() {
         html += `
             <div class="admin-order-card">
                 <b>Замовлення #${o.id} від ${o.date}</b>
-                <p style="font-size: 13px; margin: 4px 0; white-space: pre-line;">${o.items}</p>
+                <p style="font-size: 13px; margin: 6px 0; white-space: pre-line;">${o.items}</p>
                 <p style="font-size: 13px;"><b>Сума:</b> ${o.total} ₴ | <b>Клієнт:</b> ${o.name} (${o.contact})</p>
                 <p style="font-size: 12px; color: var(--text-muted);">Коментар: ${o.comment}</p>
             </div>

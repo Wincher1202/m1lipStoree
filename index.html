@@ -3,197 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MilipStore — Преміальна ігрова периферія</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Milip Store — Premium Gaming Peripherals</title>
+    <!-- Подключаем шрифты и иконки -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 
-    <!-- Шапка сайту -->
-    <header class="header">
-        <div class="header-container">
-            <div class="logo" onclick="switchView('home')" style="cursor: pointer;">
-                <span class="logo-butterfly">🦋</span> Milip<span style="color: var(--accent);">Store</span>
+    <!-- MAGICAL PRELOADER WITH BUTTERFLY -->
+    <div id="preloader" class="preloader">
+        <div class="loader-content">
+            <div class="loader-butterfly-wrap">
+                <svg class="loader-butterfly-svg" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M12,2C13.5,4 15,5 17,6C19,7 21,8 21,11C21,14 18,16 16,16C15,16 14,15.5 13,15C12,14.5 11,13 10,12C9,13 8,14.5 7,15C6,15.5 5,16 4,16C2,16 -1,14 -1,11C-1,8 1,7 3,6C5,5 6.5,4 8,2C9,1 11,1 12,2Z"/>
+                </svg>
             </div>
-            
-            <nav class="desktop-nav">
-                <a href="#catalog" onclick="switchView('home')">Каталог</a>
-                <a href="#" onclick="filterCategory('mice')">Мишки</a>
-                <a href="#" onclick="filterCategory('keyboards')">Клавіатури</a>
-                <a href="#" onclick="filterCategory('headsets')">Навушники</a>
-            </nav>
-
-            <div class="header-actions">
-                <button class="icon-btn" id="searchToggle"><span class="material-symbols-outlined">search</span></button>
-                <button class="icon-btn" onclick="openAdminPanel()"><span class="material-symbols-outlined">admin_panel_settings</span></button>
-                <button class="icon-btn" id="cartBtn">
-                    <span class="material-symbols-outlined">shopping_bag</span>
-                    <span class="badge-count" id="cartCount">0</span>
-                </button>
-            </div>
-        </div>
-        <div class="search-bar-container" id="searchContainer">
-            <input type="text" id="searchInput" placeholder="Пошук за назвою, брендом, характеристиками...">
-        </div>
-    </header>
-
-    <!-- Основной контент (переключается динамически: home, product-detail, admin) -->
-    <main class="main-container" id="mainContent">
-        <!-- ГЛАВНАЯ СТРАНИЦА -->
-        <div id="homeView" class="view-section active">
-            <!-- Hero Section -->
-            <section class="hero-section">
-                <div class="hero-content">
-                    <span class="hero-tag">PREMIUM TECH BRAND</span>
-                    <h1>Perfect your setup.</h1>
-                    <p>Ігрова периферія для тих, хто цінує безкомпромісну продуктивність, мінімалістичний дизайн та комфорт.</p>
-                    <div class="hero-buttons">
-                        <a href="#catalog" class="btn-primary">Дивитися каталог →</a>
-                    </div>
-                </div>
-                <div class="hero-visual">
-                    <div class="glow-spot"></div>
-                    <div class="hero-banner-card" onclick="openProduct(0)">
-                        <span class="badge hot">HOT 2026</span>
-                        <div class="banner-img">
-                            <span class="material-symbols-outlined" style="font-size: 80px; color: var(--accent);">mouse</span>
-                        </div>
-                        <h3>Attack Shark X3</h3>
-                        <p>PAW3395 • 49g • Wireless</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Категории-блоки -->
-            <section class="categories-banner-grid">
-                <div class="cat-promo-card" onclick="filterCategory('mice')">
-                    <div class="cat-promo-info">
-                        <span>МЫШКИ</span>
-                        <h3>Precision in every move</h3>
-                    </div>
-                    <span class="material-symbols-outlined">arrow_forward</span>
-                </div>
-                <div class="cat-promo-card" onclick="filterCategory('keyboards')">
-                    <div class="cat-promo-info">
-                        <span>КЛАВИАТУРЫ</span>
-                        <h3>Build your perfect setup</h3>
-                    </div>
-                    <span class="material-symbols-outlined">arrow_forward</span>
-                </div>
-                <div class="cat-promo-card" onclick="filterCategory('headsets')">
-                    <div class="cat-promo-info">
-                        <span>НАУШНИКИ</span>
-                        <h3>Hear every detail</h3>
-                    </div>
-                    <span class="material-symbols-outlined">arrow_forward</span>
-                </div>
-            </section>
-
-            <!-- Каталог товаров -->
-            <section class="catalog-section" id="catalog">
-                <div class="section-header">
-                    <h2>Каталог девайсів</h2>
-                    <div class="filter-pills">
-                        <button class="pill active" onclick="filterCategory('all')">Усі</button>
-                        <button class="pill" onclick="filterCategory('mice')">Мишки</button>
-                        <button class="pill" onclick="filterCategory('keyboards')">Клавіатури</button>
-                        <button class="pill" onclick="filterCategory('headsets')">Навушники</button>
-                    </div>
-                </div>
-
-                <div class="products-grid" id="productsGrid">
-                    <!-- Товары рендерятся через JavaScript -->
-                </div>
-            </section>
-        </div>
-
-        <!-- СТРАНИЦА ТОВАРА -->
-        <div id="productDetailView" class="view-section">
-            <button class="back-btn" onclick="switchView('home')">
-                <span class="material-symbols-outlined">arrow_back</span> Назад до каталогу
-            </button>
-            <div class="product-detail-container" id="productDetailContent">
-                <!-- Заполняется динамически -->
-            </div>
-        </div>
-
-        <!-- АДМИН-ПАНЕЛЬ -->
-        <div id="adminView" class="view-section">
-            <div class="admin-header">
-                <h2>Адмін-панель MilipStore</h2>
-                <button class="btn-primary" onclick="switchView('home')">Вийти на сайт</button>
-            </div>
-            <div class="admin-stats">
-                <div class="stat-card"><h3>Замовлень</h3><p id="adminOrdersCount">0</p></div>
-                <div class="stat-card"><h3>Товарів</h3><p id="adminProductsCount">1</p></div>
-            </div>
-            <h3>Список замовлень від клієнтів</h3>
-            <div class="admin-orders-list" id="adminOrdersList">
-                <p style="color: var(--text-muted);">Поки що замовлень немає.</p>
-            </div>
-        </div>
-    </main>
-
-    <!-- Корзина (Sidebar) -->
-    <div class="cart-overlay" id="cartOverlay"></div>
-    <div class="cart-sidebar" id="cartSidebar">
-        <div class="cart-header">
-            <h3>Кошик</h3>
-            <button class="icon-btn" id="closeCart"><span class="material-symbols-outlined">close</span></button>
-        </div>
-        <div class="cart-items" id="cartItemsList">
-            <div class="empty-cart">Кошик порожній</div>
-        </div>
-        <div class="cart-footer">
-            <div class="total-row">
-                <span>TOTAL:</span>
-                <span id="cartTotalPrice">0 ₴</span>
-            </div>
-            <button class="checkout-main-btn" onclick="openCheckoutModal()">Оформити замовлення →</button>
+            <div class="loader-text-brand">Milip Store</div>
+            <div class="loader-line"><div class="loader-progress"></div></div>
         </div>
     </div>
 
-    <!-- Модальное окно оформления заказа (отправка менеджеру) -->
-    <div class="modal-overlay" id="checkoutModal">
-        <div class="modal-card">
-            <h3>Оформлення замовлення</h3>
-            <p>Заповніть дані, і ми сформуємо запит для менеджера.</p>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-box" onclick="switchView('home')" style="cursor: pointer;">
+                <img src="images/logo-milipstore.png" alt="Milip Store" class="header-logo-img">
+                <span class="logo-text">Milip<span>Store</span></span>
+            </div>
+            
+            <nav class="header-nav">
+                <a href="#" onclick="filterCategory('all')">Shop</a>
+                <a href="#" onclick="filterCategory('mice')">Mice</a>
+                <a href="#" onclick="filterCategory('keyboards')">Keyboards</a>
+                <a href="#" onclick="openAdminPanel()" style="color: var(--accent);">Admin</a>
+            </nav>
+
+            <div class="header-actions">
+                <button class="icon-btn" id="searchToggle" title="Пошук"><span class="material-symbols-outlined">search</span></button>
+                <button class="icon-btn wishlist-icon-btn" id="wishlistToggle" title="Обране">
+                    <span class="material-symbols-outlined" id="wishlistIconMain">favorite</span>
+                </button>
+                <button class="icon-btn cart-btn-header" id="cartBtn" title="Кошик">
+                    <span class="material-symbols-outlined">shopping_bag</span>
+                    <span class="cart-badge" id="cartCount" style="display:none;">0</span>
+                </button>
+            </div>
+        </div>
+        <!-- SEARCH OVERLAY -->
+        <div class="search-container" id="searchContainer">
+            <input type="text" id="searchInput" placeholder="Пошук девайсів (наприклад, Attack Shark)...">
+        </div>
+    </header>
+
+    <!-- MAIN VIEWS CONTAINER -->
+    <main class="main-content">
+
+        <!-- VIEW 1: HOME -->
+        <section id="homeView" class="view-section active">
+            <!-- HERO SECTION -->
+            <section class="hero-section">
+                <div class="hero-text-box">
+                    <span class="hero-tag">NEW GENERATION GEAR 🟢</span>
+                    <h1>LEVEL UP <br>YOUR SETUP.</h1>
+                    <p>Преміальна ігрова периферия для тих, хто обирає максимальну точність та стиль.</p>
+                    <div class="hero-btns">
+                        <button class="btn-primary" onclick="filterCategory('all')">Explore Products →</button>
+                        <button class="btn-secondary" onclick="openProduct(0)">Attack Shark X3</button>
+                    </div>
+                </div>
+                <div class="hero-image-box" onclick="openProduct(0)">
+                    <img src="images/attack-shark-x3-white.jpg" alt="Attack Shark X3" class="hero-main-img">
+                </div>
+            </section>
+
+            <!-- CATEGORIES EDITORIAL -->
+            <section class="categories-section">
+                <h2 class="section-title">FIND YOUR GEAR</h2>
+                <div class="categories-grid">
+                    <div class="cat-card" onclick="filterCategory('mice')">
+                        <img src="images/attack-shark-x3-white.jpg" alt="Mice">
+                        <div class="cat-info">
+                            <h3>MICE</h3>
+                            <p>Precision for every move</p>
+                        </div>
+                    </div>
+                    <div class="cat-card" onclick="filterCategory('keyboards')">
+                        <img src="images/attack-shark-x3-black.jpg" alt="Keyboards">
+                        <div class="cat-info">
+                            <h3>KEYBOARDS</h3>
+                            <p>Built for every keystroke</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PRODUCTS GRID -->
+            <section class="products-section">
+                <div class="section-header-row">
+                    <h2 class="section-title">NEW ARRIVALS</h2>
+                    <span style="color: var(--text-muted); font-size: 14px;">The latest gear for your setup</span>
+                </div>
+                <div class="products-grid" id="productsGrid">
+                    <!-- Динамически заполняется из script.js -->
+                </div>
+            </section>
+        </section>
+
+        <!-- VIEW 2: PRODUCT DETAIL PAGE -->
+        <section id="productDetailView" class="view-section">
+            <div class="back-row">
+                <button class="back-btn" onclick="switchView('home')">← Повернутися до каталогу</button>
+            </div>
+            <div class="product-detail-layout" id="productDetailContent">
+                <!-- Заполняется динамически -->
+            </div>
+        </section>
+
+        <!-- VIEW 3: ADMIN PANEL -->
+        <section id="adminView" class="view-section">
+            <div class="admin-container">
+                <div class="back-row">
+                    <button class="back-btn" onclick="switchView('home')">← На сайт</button>
+                </div>
+                <h2>Панель управління магазином</h2>
+                <div class="admin-stats-grid">
+                    <div class="admin-stat-card">
+                        <h3>Замовлення</h3>
+                        <p id="adminOrdersCount" style="font-size: 24px; font-weight: 800; color: var(--accent);">0</p>
+                    </div>
+                </div>
+                <h3 style="margin-top: 30px;">Вхідні замовлення від клієнтів:</h3>
+                <div id="adminOrdersList" style="margin-top: 15px;">
+                    <!-- Список заказов -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- CART SIDEBAR DRAWER -->
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>Ваш кошик</h3>
+            <button class="close-cart" id="closeCart"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <div class="cart-items-list" id="cartItemsList">
+            <!-- Элементы корзины -->
+        </div>
+        <div class="cart-footer">
+            <div class="cart-subtotal-row">
+                <span>Разом:</span>
+                <b id="cartTotalPrice">0 ₴</b>
+            </div>
+            <button class="btn-primary" style="width: 100%; text-align: center;" onclick="openCheckoutModal()">Оформити замовлення →</button>
+        </div>
+    </div>
+
+    <!-- CHECKOUT MODAL -->
+    <div class="checkout-modal" id="checkoutModal">
+        <div class="checkout-content">
+            <div class="cart-header" style="margin-bottom: 16px;">
+                <h3>Оформлення замовлення</h3>
+                <button class="close-cart" onclick="closeCheckoutModal()"><span class="material-symbols-outlined">close</span></button>
+            </div>
             <div class="form-group">
                 <label>Ваше ім'я</label>
                 <input type="text" id="orderName" placeholder="Олександр">
             </div>
-            <div class="form-group">
-                <label>Telegram / Телефон</label>
-                <input type="text" id="orderContact" placeholder="@username або номер">
+            <div class="form-group" style="margin-top: 12px;">
+                <label>Контакт (Telegram username або телефон)</label>
+                <input type="text" id="orderContact" placeholder="@username або +380...">
             </div>
-            <div class="form-group">
+            <div class="form-group" style="margin-top: 12px;">
                 <label>Коментарь до замовлення</label>
-                <textarea id="orderComment" placeholder="Бажаний час доставки, питання..."></textarea>
+                <input type="text" id="orderComment" placeholder="Зручний час дзвінка, поштове відділення...">
             </div>
-            <div class="modal-buttons">
-                <button class="btn-secondary" onclick="closeCheckoutModal()">Скасувати</button>
-                <button class="btn-primary" onclick="submitOrderToTelegram()">Зв'язатися з менеджером →</button>
-            </div>
+            <button class="btn-primary" style="width: 100%; margin-top: 20px; text-align: center;" onclick="submitOrderToTelegram()">Відправити менеджеру →</button>
         </div>
     </div>
 
-    <!-- Нижняя навигация для мобильных -->
-    <nav class="mobile-bottom-nav">
-        <a href="#catalog" class="mob-nav-item active" onclick="switchView('home')">
-            <span class="material-symbols-outlined">storefront</span>
-            <span>Каталог</span>
-        </a>
-        <a href="#" class="mob-nav-item" onclick="toggleSearchMobile()">
-            <span class="material-symbols-outlined">search</span>
-            <span>Пошук</span>
-        </a>
-        <a href="#" class="mob-nav-item" id="mobCartTrigger">
-            <span class="material-symbols-outlined">shopping_bag</span>
-            <span>Кошик</span>
-            <span class="mob-badge" id="mobCartBadge">0</span>
-        </a>
-    </nav>
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-col">
+                <div class="logo-box">
+                    <img src="images/logo-milipstore.png" alt="Milip Store" class="header-logo-img">
+                    <span class="logo-text">Milip<span>Store</span></span>
+                </div>
+                <p style="color: var(--text-muted); font-size: 13px; margin-top: 12px;">Преміальна ігрова периферия. Тільки оригінальні бренди та максимальна якість.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Каталог</h4>
+                <a href="#" onclick="filterCategory('mice')">Ігрові мишки</a>
+                <a href="#" onclick="filterCategory('keyboards')">Клавіатури</a>
+            </div>
+            <div class="footer-col">
+                <h4>Підтримка</h4>
+                <a href="#">Доставка та оплата</a>
+                <a href="#">Гарантія 1 місяць</a>
+                <a href="#">Контакти</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 Milip Store. Всі права захищені.</p>
+        </div>
+    </footer>
 
     <script src="script.js"></script>
 </body>
